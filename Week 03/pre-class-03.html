@@ -166,7 +166,7 @@ $(document).ready(function () {
 <li>Which European nation had the lowest GDP per capita in 1997?</li>
 </ol>
 <pre class="r"><code>gapminder %&gt;%
-  filter(continent==&quot;Europe&quot;&amp; year == 1997) %&gt;%
+  filter(continent==&quot;Europe&quot; &amp; year==1997) %&gt;%
   arrange(gdpPercap) %&gt;%
   select(country, gdpPercap) %&gt;%
   head()</code></pre>
@@ -181,14 +181,291 @@ $(document).ready(function () {
 ## 6 Romania                    7347.</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>According to the data available, what was the average life expectancy across each continent in the 1980s?</li>
+</ol>
+<pre class="r"><code>gapminder %&gt;%
+  group_by(continent) %&gt;%
+  filter(year&gt;=1980 &amp; year&lt;=1989) %&gt;%
+  summarise(avg_lifeExp=mean(lifeExp), sd_lifeExp=sd(lifeExp))</code></pre>
+<pre><code>## # A tibble: 5 x 3
+##   continent avg_lifeExp sd_lifeExp
+##   &lt;fct&gt;           &lt;dbl&gt;      &lt;dbl&gt;
+## 1 Africa           52.5       7.64
+## 2 Americas         67.2       6.28
+## 3 Asia             63.7       8.38
+## 4 Europe           73.2       3.19
+## 5 Oceania          74.8       1.07</code></pre>
+<ol start="4" style="list-style-type: decimal">
 <li>What 5 countries have the highest total GDP over all years combined?</li>
+</ol>
+<pre class="r"><code>gapminder %&gt;%
+  group_by(country) %&gt;%
+  mutate(gdp=gdpPercap*pop) %&gt;%
+  summarise(total_gdp=sum(gdp)) %&gt;%
+  arrange(desc(total_gdp)) %&gt;%
+  select(country, total_gdp) %&gt;%
+  head(5)</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   country        total_gdp
+##   &lt;fct&gt;              &lt;dbl&gt;
+## 1 United States    7.68e13
+## 2 Japan            2.54e13
+## 3 China            2.04e13
+## 4 Germany          1.95e13
+## 5 United Kingdom   1.33e13</code></pre>
+<ol start="5" style="list-style-type: decimal">
 <li>What countries and years had life expectancies of <em>at least</em> 80 years? <em>N.b. only output the columns of interest: country, life expectancy and year (in that order).</em></li>
+</ol>
+<pre class="r"><code># I build the list of countries that meet the criteria and save it as a new dataframe
+lifeExp_80=gapminder %&gt;%
+  filter(lifeExp&gt;=80) %&gt;%
+  select(country, lifeExp, year)
+# I find how many rows the dataframe has
+nrows=nrow(lifeExp_80)
+# I print the whole dataframe
+print(tbl_df(lifeExp_80), n=nrows)</code></pre>
+<pre><code>## # A tibble: 22 x 3
+##    country          lifeExp  year
+##    &lt;fct&gt;              &lt;dbl&gt; &lt;int&gt;
+##  1 Australia           80.4  2002
+##  2 Australia           81.2  2007
+##  3 Canada              80.7  2007
+##  4 France              80.7  2007
+##  5 Hong Kong, China    80    1997
+##  6 Hong Kong, China    81.5  2002
+##  7 Hong Kong, China    82.2  2007
+##  8 Iceland             80.5  2002
+##  9 Iceland             81.8  2007
+## 10 Israel              80.7  2007
+## 11 Italy               80.2  2002
+## 12 Italy               80.5  2007
+## 13 Japan               80.7  1997
+## 14 Japan               82    2002
+## 15 Japan               82.6  2007
+## 16 New Zealand         80.2  2007
+## 17 Norway              80.2  2007
+## 18 Spain               80.9  2007
+## 19 Sweden              80.0  2002
+## 20 Sweden              80.9  2007
+## 21 Switzerland         80.6  2002
+## 22 Switzerland         81.7  2007</code></pre>
+<ol start="6" style="list-style-type: decimal">
 <li>What 10 countries have the strongest correlation (in either direction) between life expectancy and per capita GDP?</li>
+</ol>
+<pre class="r"><code>gapminder %&gt;%
+  group_by(country) %&gt;%
+  #To find high correlation in either direction I take the absolute value of the correlation
+  summarise(correl=abs(cor(lifeExp, gdpPercap))) %&gt;%
+  arrange(desc(correl)) %&gt;%
+  head(10)</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    country        correl
+##    &lt;fct&gt;           &lt;dbl&gt;
+##  1 France          0.996
+##  2 Austria         0.993
+##  3 Belgium         0.993
+##  4 Norway          0.992
+##  5 Oman            0.991
+##  6 United Kingdom  0.990
+##  7 Italy           0.990
+##  8 Israel          0.988
+##  9 Denmark         0.987
+## 10 Australia       0.986</code></pre>
+<ol start="7" style="list-style-type: decimal">
 <li>Which combinations of continent (besides Asia) and year have the highest average population across all countries? <em>N.b. your output should include all results sorted by highest average population</em>. With what you already know, this one may stump you. See <a href="http://stackoverflow.com/q/27207963/654296">this Q&amp;A</a> for how to <code>ungroup</code> before <code>arrange</code>ing. This also <a href="https://github.com/hadley/dplyr/releases/tag/v0.5.0">behaves differently in more recent versions of dplyr</a>.</li>
+</ol>
+<pre class="r"><code>high_avg_pop=gapminder %&gt;%
+  filter(continent!=&quot;Asia&quot;) %&gt;%
+  group_by(continent, year) %&gt;%
+  summarise(avg_pop=mean(pop)) %&gt;%
+  ungroup() %&gt;%
+  arrange(desc(avg_pop)) 
+
+nrows=nrow(high_avg_pop)
+
+print(tbl_df(high_avg_pop), n=nrows)</code></pre>
+<pre><code>## # A tibble: 48 x 3
+##    continent  year   avg_pop
+##    &lt;fct&gt;     &lt;int&gt;     &lt;dbl&gt;
+##  1 Americas   2007 35954847.
+##  2 Americas   2002 33990910.
+##  3 Americas   1997 31876016.
+##  4 Americas   1992 29570964.
+##  5 Americas   1987 27310159.
+##  6 Americas   1982 25211637.
+##  7 Americas   1977 23122708.
+##  8 Americas   1972 21175368.
+##  9 Europe     2007 19536618.
+## 10 Europe     2002 19274129.
+## 11 Americas   1967 19229865.
+## 12 Europe     1997 18964805.
+## 13 Europe     1992 18604760.
+## 14 Europe     1987 18103139.
+## 15 Africa     2007 17875763.
+## 16 Europe     1982 17708897.
+## 17 Americas   1962 17330810.
+## 18 Europe     1977 17238818.
+## 19 Europe     1972 16687835.
+## 20 Europe     1967 16039299.
+## 21 Africa     2002 16033152.
+## 22 Americas   1957 15478157.
+## 23 Europe     1962 15345172.
+## 24 Europe     1957 14596345.
+## 25 Africa     1997 14304480.
+## 26 Europe     1952 13937362.
+## 27 Americas   1952 13806098.
+## 28 Africa     1992 12674645.
+## 29 Oceania    2007 12274974.
+## 30 Oceania    2002 11727414.
+## 31 Oceania    1997 11120715 
+## 32 Africa     1987 11054502.
+## 33 Oceania    1992 10459826.
+## 34 Oceania    1987  9787208.
+## 35 Africa     1982  9602857.
+## 36 Oceania    1982  9197425 
+## 37 Oceania    1977  8619500 
+## 38 Africa     1977  8328097.
+## 39 Oceania    1972  8053050 
+## 40 Africa     1972  7305376.
+## 41 Oceania    1967  7300207 
+## 42 Oceania    1962  6641759 
+## 43 Africa     1967  6447875.
+## 44 Oceania    1957  5970988 
+## 45 Africa     1962  5702247.
+## 46 Oceania    1952  5343003 
+## 47 Africa     1957  5093033.
+## 48 Africa     1952  4570010.</code></pre>
+<p>Comparing it to the result <em>including</em> Asia:</p>
+<pre class="r"><code>high_avg_pop=gapminder %&gt;%
+  group_by(continent, year) %&gt;%
+  summarise(avg_pop=mean(pop)) %&gt;%
+  ungroup() %&gt;%
+  arrange(desc(avg_pop)) 
+
+nrows=nrow(high_avg_pop)
+
+print(tbl_df(high_avg_pop), n=nrows)</code></pre>
+<pre><code>## # A tibble: 60 x 3
+##    continent  year    avg_pop
+##    &lt;fct&gt;     &lt;int&gt;      &lt;dbl&gt;
+##  1 Asia       2007 115513752.
+##  2 Asia       2002 109145521.
+##  3 Asia       1997 102523803.
+##  4 Asia       1992  94948248.
+##  5 Asia       1987  87006690.
+##  6 Asia       1982  79095018.
+##  7 Asia       1977  72257987.
+##  8 Asia       1972  65180977.
+##  9 Asia       1967  57747361.
+## 10 Asia       1962  51404763.
+## 11 Asia       1957  47356988.
+## 12 Asia       1952  42283556.
+## 13 Americas   2007  35954847.
+## 14 Americas   2002  33990910.
+## 15 Americas   1997  31876016.
+## 16 Americas   1992  29570964.
+## 17 Americas   1987  27310159.
+## 18 Americas   1982  25211637.
+## 19 Americas   1977  23122708.
+## 20 Americas   1972  21175368.
+## 21 Europe     2007  19536618.
+## 22 Europe     2002  19274129.
+## 23 Americas   1967  19229865.
+## 24 Europe     1997  18964805.
+## 25 Europe     1992  18604760.
+## 26 Europe     1987  18103139.
+## 27 Africa     2007  17875763.
+## 28 Europe     1982  17708897.
+## 29 Americas   1962  17330810.
+## 30 Europe     1977  17238818.
+## 31 Europe     1972  16687835.
+## 32 Europe     1967  16039299.
+## 33 Africa     2002  16033152.
+## 34 Americas   1957  15478157.
+## 35 Europe     1962  15345172.
+## 36 Europe     1957  14596345.
+## 37 Africa     1997  14304480.
+## 38 Europe     1952  13937362.
+## 39 Americas   1952  13806098.
+## 40 Africa     1992  12674645.
+## 41 Oceania    2007  12274974.
+## 42 Oceania    2002  11727414.
+## 43 Oceania    1997  11120715 
+## 44 Africa     1987  11054502.
+## 45 Oceania    1992  10459826.
+## 46 Oceania    1987   9787208.
+## 47 Africa     1982   9602857.
+## 48 Oceania    1982   9197425 
+## 49 Oceania    1977   8619500 
+## 50 Africa     1977   8328097.
+## 51 Oceania    1972   8053050 
+## 52 Africa     1972   7305376.
+## 53 Oceania    1967   7300207 
+## 54 Oceania    1962   6641759 
+## 55 Africa     1967   6447875.
+## 56 Oceania    1957   5970988 
+## 57 Africa     1962   5702247.
+## 58 Oceania    1952   5343003 
+## 59 Africa     1957   5093033.
+## 60 Africa     1952   4570010.</code></pre>
+<ol start="8" style="list-style-type: decimal">
 <li>Which three countries have had the most consistent population estimates (i.e. lowest standard deviation) across the years of available data?</li>
+</ol>
+<pre class="r"><code>gapminder %&gt;%
+  group_by(country) %&gt;%
+  summarise(sd_pop=sd(pop)) %&gt;%
+  arrange(sd_pop) %&gt;%
+  head(3)</code></pre>
+<pre><code>## # A tibble: 3 x 2
+##   country               sd_pop
+##   &lt;fct&gt;                  &lt;dbl&gt;
+## 1 Sao Tome and Principe 45906.
+## 2 Iceland               48542.
+## 3 Montenegro            99738.</code></pre>
+<ol start="9" style="list-style-type: decimal">
 <li>Subset <strong>gm</strong> to only include observations from 1992 and store the results as <strong>gm1992</strong>. What kind of object is this?</li>
+</ol>
+<pre class="r"><code>gm1992=filter(gapminder, year==1992)
+class(gm1992)</code></pre>
+<pre><code>## [1] &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
+<p>It is a data frame</p>
+<ol start="10" style="list-style-type: decimal">
 <li>Which observations indicate that the population of a country has <em>decreased</em> from the previous year <strong>and</strong> the life expectancy has <em>increased</em> from the previous year? See <a href="https://cran.r-project.org/web/packages/dplyr/vignettes/window-functions.html">the vignette on window functions</a>.</li>
 </ol>
+<pre class="r"><code>changes=gapminder %&gt;%
+  group_by(country) %&gt;% 
+  arrange(country, year) %&gt;% 
+  mutate(chg_pop=pop-lag(pop), chg_lifeExp=lifeExp-lag(lifeExp)) %&gt;%
+  #Just to see an example of the changes, I keep two countries
+  filter(country==&quot;Argentina&quot; | country==&quot;Zimbabwe&quot;, !is.na(chg_pop), !is.na(chg_lifeExp)) %&gt;%
+  select(country, year, chg_pop, chg_lifeExp)
+
+nrows=nrow(changes)
+print(tbl_df(changes), n=nrows)</code></pre>
+<pre><code>## # A tibble: 22 x 4
+##    country    year chg_pop chg_lifeExp
+##    &lt;fct&gt;     &lt;int&gt;   &lt;int&gt;       &lt;dbl&gt;
+##  1 Argentina  1957 1733582       1.91 
+##  2 Argentina  1962 1673245       0.743
+##  3 Argentina  1967 1650442       0.492
+##  4 Argentina  1972 1845574       1.43 
+##  5 Argentina  1977 2204029       1.42 
+##  6 Argentina  1982 2357546       1.46 
+##  7 Argentina  1987 2279544       0.832
+##  8 Argentina  1992 2338029       1.09 
+##  9 Argentina  1997 2244516       1.41 
+## 10 Argentina  2002 2127658       1.06 
+## 11 Argentina  2007 1970806       0.980
+## 12 Zimbabwe   1957  565433       2.02 
+## 13 Zimbabwe   1962  631396       1.89 
+## 14 Zimbabwe   1967  717696       1.64 
+## 15 Zimbabwe   1972  865703       1.64 
+## 16 Zimbabwe   1977  780972       2.04 
+## 17 Zimbabwe   1982  994417       2.69 
+## 18 Zimbabwe   1987 1579894       1.99 
+## 19 Zimbabwe   1992 1487922      -1.97 
+## 20 Zimbabwe   1997  700608     -13.6  
+## 21 Zimbabwe   2002  521615      -6.82 
+## 22 Zimbabwe   2007  384580       3.50</code></pre>
 </div>
 </div>
 
