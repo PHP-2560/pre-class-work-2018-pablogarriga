@@ -1,34 +1,40 @@
 # pre-class
 
-
 Make sure you commit this often with meaningfull messages. 
 
 
 ### Getting Started
 
-
 We will work with the dataset called [gapminder](https://github.com/jennybc/gapminder), this is a cleaned up version from [Gapminder Data](http://www.gapminder.org/data/). Gapminder contains a lot of great data on all of the nations of the world. We first need to install the gapminder package in R. 
 
-```
-install.packages("gapminder")
-```
-
-
-
-```
-library(dplyr)
+```{R echo=FALSE, message=FALSE, warning=FALSE}
+setwd("~/Dropbox (Brown)/brown/cursos/3ro/r/pre-class-work-2018-pablogarriga/Week 03")  # change working directory to the current folder
+# install.packages("gapminder")
 library(gapminder)
+library(dplyr)
 gapminder
 ```
-
-
 
 ### Pre-Class Problems
 
 Use **dplyr** functions to address the following questions:
 
 1. How many unique countries are represented per continent?
-2. Which European nation had the lowest GDP per capita in 1997? 
+```{R echo=TRUE, message=FALSE, warning=FALSE}
+gapminder %>%
+  group_by(continent) %>% 
+  summarise(unique_ctry=n_distinct(country))
+```
+
+2. Which European nation had the lowest GDP per capita in 1997?
+```{R echo=TRUE, message=FALSE, warning=FALSE}
+gapminder %>%
+  filter(continent=="Europe"& year==1997) %>%
+  arrange(gdpPercap) %>%
+  select(country, gdpPercap) %>%
+  head()
+```
+
 3. According to the data available, what was the average life expectancy across each continent in the 1980s?
 4. What 5 countries have the highest total GDP over all years combined?
 5. What countries and years had life expectancies of _at least_ 80 years? _N.b. only output the columns of interest: country, life expectancy and year (in that order)._
