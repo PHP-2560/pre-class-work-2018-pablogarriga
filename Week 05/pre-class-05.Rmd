@@ -8,7 +8,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Standardizing a variable means subtracting the mean, and then dividing by the standard deviation. Let’s use a loop to standardize the numeric columns in the [Western Collaborative Group Study](https://clinicaltrials.gov/ct2/show/NCT00005174). This study began in 1960 with 3154 men ages 39-59, who were employed in one of 11 California based companies. They were followed until 1969 during this time, 257 of these men developed coronary heart disease (CHD). You can read this data in with the code below. You can access this dataset with the following code:
 
-```{R}
+```{R, message=FALSE, warning=FALSE}
+suppressMessages(library(dplyr))
 suppressMessages(library(foreign))
 wcgs <- read.dta("https://drive.google.com/uc?export=download&id=0B8CsRLdwqzbzYWxfN3ExQllBQkU")
 ```
@@ -81,45 +82,45 @@ bmi     Body Mass Index
 
 A. Create a function called standardize.me() that takes a numeric vector as an argument, and returns the standardized version of the vector. 
 
-```{R}
+```{R, message=FALSE, warning=FALSE}
 standardize.me=function(x){
   std=(x-mean(x, na.rm = T))/sd(x, na.rm = T) #standardize
   std #print result
 }
 ```
 Test:
-```{R}
+```{R, message=FALSE, warning=FALSE}
 wcgs$height_std=standardize.me(wcgs$height)
 head(wcgs$height)
 head(wcgs$height_std)
 ```
 
 B. Assign all the numeric columns of the original WCGS dataset to a new dataset called WCGS.new.
-```{R}
+```{R, message=FALSE, warning=FALSE}
 numeric_cols <- unlist(lapply(wcgs, is.numeric)) #find numeric columns
 wcgs.new=wcgs[, numeric_cols] #subset those columns into the new dataset
 ```
 Test:
-```{R}
+```{R, message=FALSE, warning=FALSE}
 wcgs$height_std=standardize.me(wcgs$height)
 head(wcgs$height)
 head(wcgs$height_std)
 ```
 C. Using a loop and your new function, standardize all the variables WCGS.new dataset.
-```{R}
+```{R, message=FALSE, warning=FALSE}
 for (i in seq_along(wcgs.new)) {
   wcgs.new[, i] <- standardize.me(wcgs.new[, i])
 }
 ```
 Test:
-```{R}
+```{R, message=FALSE, warning=FALSE}
 head(wcgs.new)
 ```
 
 D. What should the mean and standard deviation of all your new standardized variables be? Test your prediction by running a loop
 
 After standardizing all values should be centered around the mean and have sd equal to 1.
-```{R}
+```{R, message=FALSE, warning=FALSE}
 for (i in seq_along(wcgs.new)) {
   print(paste("mean:", mean(wcgs.new[, i], na.rm = T), "sd:", sd(wcgs.new[, i], na.rm = T)))
 }
@@ -128,7 +129,7 @@ for (i in seq_along(wcgs.new)) {
 ### Question 2: Looping to Calculate
 
 A. Using a loop, calculate the mean weight of the subjects separated by the type of CHD they have.
-```{R}
+```{R, message=FALSE, warning=FALSE}
 mean_weight=data.frame("chd"=unique(wcgs$chd69), "mean_weight" = NA) #create empty data frame to fill
 
 for(i in seq_along(mean_weight)) {
@@ -140,6 +141,8 @@ mean_weight
 ```
 
 B. Now do the same thing, but now don’t use a loop
-```{R}
-
+```{R, message=FALSE, warning=FALSE}
+wcgs %>%
+  group_by(chd69) %>%
+  summarize(group_weight=mean(weight,na.rm=T))
 ```

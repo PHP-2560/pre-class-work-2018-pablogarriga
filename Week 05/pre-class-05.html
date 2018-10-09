@@ -128,7 +128,8 @@ $(document).ready(function () {
 <h1>pre-class</h1>
 <p>Make sure you commit this often with meaningful messages.</p>
 <p>Standardizing a variable means subtracting the mean, and then dividing by the standard deviation. Let’s use a loop to standardize the numeric columns in the <a href="https://clinicaltrials.gov/ct2/show/NCT00005174">Western Collaborative Group Study</a>. This study began in 1960 with 3154 men ages 39-59, who were employed in one of 11 California based companies. They were followed until 1969 during this time, 257 of these men developed coronary heart disease (CHD). You can read this data in with the code below. You can access this dataset with the following code:</p>
-<pre class="r"><code>suppressMessages(library(foreign))
+<pre class="r"><code>suppressMessages(library(dplyr))
+suppressMessages(library(foreign))
 wcgs &lt;- read.dta(&quot;https://drive.google.com/uc?export=download&amp;id=0B8CsRLdwqzbzYWxfN3ExQllBQkU&quot;)</code></pre>
 <p>The data has the following variables:</p>
 <p>WCGS has the following variables:</p>
@@ -333,6 +334,14 @@ mean_weight</code></pre>
 ## 1  no    169.5537
 ## 2 yes    174.4630</code></pre>
 <p>B. Now do the same thing, but now don’t use a loop</p>
+<pre class="r"><code>wcgs %&gt;%
+  group_by(chd69) %&gt;%
+  summarize(group_weight=mean(weight,na.rm=T))</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   chd69 group_weight
+##   &lt;fct&gt;        &lt;dbl&gt;
+## 1 no            170.
+## 2 yes           174.</code></pre>
 </div>
 </div>
 
