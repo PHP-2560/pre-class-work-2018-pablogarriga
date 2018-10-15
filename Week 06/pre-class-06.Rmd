@@ -1,35 +1,61 @@
 # pre-class
 
-
 Make sure you commit this often with meaningful messages. 
-
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(dplyr))
 ```
-
 
 1. Read the source code for each of the following three functions, puzzle out what they do, and then brainstorm better names.
 
 ```
-f1 <- function(string, prefix) {
-  substr(string, 1, nchar(prefix)) == prefix
+f1 <- function(string, prefix) { #srting and prefix are the function's arguments
+  substr(string, 1, nchar(prefix)) == prefix #take the first characters of string such that it is the same lenght as prefix and test whether it has the same initial characters as prefix
 }
+#f1 = "test_prefix"
+
 f2 <- function(x) {
-  if (length(x) <= 1) return(NULL)
-  x[-length(x)]
+  if (length(x) <= 1) return(NULL) #if vector x is less than or equal to 1 element long, do nothing
+  x[-length(x)] #drop the last element of the vector
 }
-f3 <- function(x, y) {
-  rep(y, length.out = length(x))
+#f2 = "drop_element"
+
+f3 <- function(x, y) { #x and y are the function's arguments
+  rep(y, length.out = length(x)) #take the values in vector y and replicate them such that it is the same lenght as vector x
 }
+#f3 = "equal_length"
 ```
 
 2. Compare and contrast rnorm() and MASS::mvrnorm(). How could you make them more consistent?
 
+While `rnorm()` generates a random sample of values of a univariate normal distribution, `MASS::mvrnorm()` produces a sample of a multivariate normal distribution. It seems that `MASS::mvrnorm()` is a more general command since a univariate case can be applied by specifying a variance-covariance matrix (`Sigma`) that takes as value a scalar instead of a matrix.
 
-3. Use `lapply()` and an anonymous function to find the coefficient of variation (the standard deviation divided by the mean) for all columns in the mtcars dataset. 
+3. Use `lapply()` and an anonymous function to find the coefficient of variation (the standard deviation divided by the mean) for all columns in the mtcars dataset.
+
+```{r}
+lapply(mtcars, function(x) sd(x)/mean(x))
+```
 
 4. Use vapply() to:
     a. Compute the standard deviation of every column in a numeric data frame.
     b. Compute the standard deviation of every numeric column in a mixed data frame. (Hint: you’ll need to use vapply() twice.)
+
+```{r}
+lapply(mtcars, typeof) # mtcars is all numeric
+sd1=mtcars %>%
+  vapply(sd, numeric(1))
+
+df = mtcars #numeric data frame
+car_names=rownames(mtcars) #rownames
+df[,"car_names"] = car_names #add names as a new column
+
+sd2=df %>%
+  vapply(is.numeric, logical(1)) %>%
+  df[.] %>% #i don't understand why we need this step!!!
+  vapply(sd, numeric(1))
+
+sd1
+sd2
+all_equal(sd1, sd2) #check if results are the same.
+```

@@ -144,16 +144,111 @@ f2 &lt;- function(x) {
 f3 &lt;- function(x, y) { #x and y are the function's arguments
   rep(y, length.out = length(x)) #take the values in vector y and replicate them such that it is the same lenght as vector x
 }
-f3 = &quot;equal_length&quot;</code></pre>
+#f3 = &quot;equal_length&quot;</code></pre>
 <ol start="2" style="list-style-type: decimal">
-<li><p>Compare and contrast rnorm() and MASS::mvrnorm(). How could you make them more consistent?</p></li>
-<li><p>Use <code>lapply()</code> and an anonymous function to find the coefficient of variation (the standard deviation divided by the mean) for all columns in the mtcars dataset.</p></li>
+<li>Compare and contrast rnorm() and MASS::mvrnorm(). How could you make them more consistent?</li>
+</ol>
+<p>While <code>rnorm()</code> generates a random sample of values of a univariate normal distribution, <code>MASS::mvrnorm()</code> produces a sample of a multivariate normal distribution. It seems that <code>MASS::mvrnorm()</code> is a more general command since a univariate case can be applied by specifying a variance-covariance matrix (<code>Sigma</code>) that takes as value a scalar instead of a matrix.</p>
+<ol start="3" style="list-style-type: decimal">
+<li>Use <code>lapply()</code> and an anonymous function to find the coefficient of variation (the standard deviation divided by the mean) for all columns in the mtcars dataset.</li>
+</ol>
+<pre class="r"><code>lapply(mtcars, function(x) sd(x)/mean(x))</code></pre>
+<pre><code>## $mpg
+## [1] 0.2999881
+## 
+## $cyl
+## [1] 0.2886338
+## 
+## $disp
+## [1] 0.5371779
+## 
+## $hp
+## [1] 0.4674077
+## 
+## $drat
+## [1] 0.1486638
+## 
+## $wt
+## [1] 0.3041285
+## 
+## $qsec
+## [1] 0.1001159
+## 
+## $vs
+## [1] 1.152037
+## 
+## $am
+## [1] 1.228285
+## 
+## $gear
+## [1] 0.2000825
+## 
+## $carb
+## [1] 0.5742933</code></pre>
+<ol start="4" style="list-style-type: decimal">
 <li>Use vapply() to:
 <ol style="list-style-type: lower-alpha">
 <li>Compute the standard deviation of every column in a numeric data frame.</li>
 <li>Compute the standard deviation of every numeric column in a mixed data frame. (Hint: you’ll need to use vapply() twice.)</li>
 </ol></li>
 </ol>
+<pre class="r"><code>lapply(mtcars, typeof) # mtcars is all numeric</code></pre>
+<pre><code>## $mpg
+## [1] &quot;double&quot;
+## 
+## $cyl
+## [1] &quot;double&quot;
+## 
+## $disp
+## [1] &quot;double&quot;
+## 
+## $hp
+## [1] &quot;double&quot;
+## 
+## $drat
+## [1] &quot;double&quot;
+## 
+## $wt
+## [1] &quot;double&quot;
+## 
+## $qsec
+## [1] &quot;double&quot;
+## 
+## $vs
+## [1] &quot;double&quot;
+## 
+## $am
+## [1] &quot;double&quot;
+## 
+## $gear
+## [1] &quot;double&quot;
+## 
+## $carb
+## [1] &quot;double&quot;</code></pre>
+<pre class="r"><code>sd1=mtcars %&gt;%
+  vapply(sd, numeric(1))
+
+df = mtcars #numeric data frame
+car_names=rownames(mtcars) #rownames
+df[,&quot;car_names&quot;] = car_names #add names as a new column
+
+sd2=df %&gt;%
+  vapply(is.numeric, logical(1)) %&gt;%
+  df[.] %&gt;% #i don't understand why we need this step!!!
+  vapply(sd, numeric(1))
+
+sd1</code></pre>
+<pre><code>##         mpg         cyl        disp          hp        drat          wt 
+##   6.0269481   1.7859216 123.9386938  68.5628685   0.5346787   0.9784574 
+##        qsec          vs          am        gear        carb 
+##   1.7869432   0.5040161   0.4989909   0.7378041   1.6152000</code></pre>
+<pre class="r"><code>sd2</code></pre>
+<pre><code>##         mpg         cyl        disp          hp        drat          wt 
+##   6.0269481   1.7859216 123.9386938  68.5628685   0.5346787   0.9784574 
+##        qsec          vs          am        gear        carb 
+##   1.7869432   0.5040161   0.4989909   0.7378041   1.6152000</code></pre>
+<pre class="r"><code>all_equal(sd1, sd2) #check if results are the same.</code></pre>
+<pre><code>## [1] TRUE</code></pre>
 </div>
 
 
